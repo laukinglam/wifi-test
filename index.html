@@ -1,0 +1,142 @@
+<html>
+<head>
+    <title>One Click Wifi Test</title>
+    <script src="https://code.jquery.com/jquery-3.1.1.min.js"
+            integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8="
+            crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jsnlog/2.22.1/jsnlog.min.js"></script>
+</head>
+<body>
+
+    Url: <input id="loginUrl" type="text" value="http://localhost/wifi/wifi_session.html" />
+    <button onclick="toggleUrl()">Toggle</button><hr>
+    Session Id: <span id="session"></span><button onclick="GetSessionId(); return false;">Get Session Id</button>
+    <span id='sessionResult'></span>
+    <span id="temp" style="display: none"></span>
+    <br>
+    Test Case:
+    <select id="testcase">
+        <option value="walkin30mins">For 30-mins Walk-In Guest</option>
+        <option value="walkin60mins">For 60-mins Walk-In Guest</option>
+        <option value="fb2hours">For 2-hours Facebook Guest</option>
+        <option value="member24hours">For 24-hours Member</option>
+    </select>
+    <hr>
+    <form id="formData">
+        ComeFrom: <input type="text" name="ComeFrom" value="VIP" /><br>
+        language: <input type="text" name="language" value="English" /><br>
+        PAYMENT_METHOD: <input type="text" name="PAYMENT_METHOD" value="4" /><br>
+        LOCATION_REGISTRATION_PACKAGE: <input type="text" name="LOCATION_REGISTRATION_PACKAGE" value="18" /><br>
+        ACCEPT_TERMS: <input type="text" name="ACCEPT_TERMS" value="1" /><br>
+        soln_session: <input type="text" name="soln_session" value="d41ae014859626f8ebc4e527cd5c83d2" /><br>
+        pms_auth_two_stage: <input type="text" name="pms_auth_two_stage" value="0" /><br>
+        show_bookmark_msg: <input type="text" name="show_bookmark_msg" value="0" /><br>
+        override_realip: <input type="text" name="override_realip" value="FALSE" /><br>
+        is_xmlrpc: <input type="text" name="is_xmlrpc" value="" /><br>
+        is_proxy: <input type="text" name="is_proxy" value="false" /><br>
+        vas_done: <input type="text" name="vas_done" value="1" /><br>
+        is_marriott: <input type="text" name="is_marriott" value="0" /><br>
+        is_hn: <input type="text" name="is_hn" value="0" /><br>
+        is_swr: <input type="text" name="is_swr" value="0" /><br>
+        paying_add_dev: <input type="text" name="paying_add_dev" value="0" /><br>
+        klubEmail: <input type="text" name="klubEmail" value="" /><br>
+        nonKlubEmail: <input type="text" name="nonKlubEmail" value="" /><br>
+        klubPhone: <input type="text" name="klubPhone" value="" /><br>
+        <button onclick="PostToWifiPage(); return false;">Post</button>
+    </form>
+    <hr>
+    Post result: <div id='result'></div>
+
+    <script>
+
+        $(function () {
+            $('#loginUrl').val(window.location.href + 'wifi_session.html');
+
+            $('#testcase').change(function () {
+                var v = $(this).val();
+                if (v == "walkin30mins") {
+                    $('input[name="ComeFrom"]').val('TERMS');
+                    $('input[name="LOCATION_REGISTRATION_PACKAGE"]').val('2');
+                    $('input[name="nonKlubEmail"]').val('');
+                    $('input[name="klubEmail"]').val('');
+                } else if (v == "walkin60mins") {
+                    $('input[name="ComeFrom"]').val('TERMS');
+                    $('input[name="LOCATION_REGISTRATION_PACKAGE"]').val('3');
+                    $('input[name="nonKlubEmail"]').val('xxxx@yyyy.com');
+                    $('input[name="klubEmail"]').val('');
+                } else if (v == "fb2hours") {
+                    $('input[name="ComeFrom"]').val('FB');
+                    $('input[name="LOCATION_REGISTRATION_PACKAGE"]').val('17');
+                    $('input[name="nonKlubEmail"]').val('');
+                    $('input[name="klubEmail"]').val('');
+                } else if (v == "member24hours") {
+                    $('input[name="ComeFrom"]').val('LOGIN');
+                    $('input[name="LOCATION_REGISTRATION_PACKAGE"]').val('4');
+                    $('input[name="nonKlubEmail"]').val('');
+                    $('input[name="klubEmail"]').val('zzzz@yyyy.com');
+                    $('input[name="klubPhone"]').val('1234567890');
+
+                }
+            });
+        });
+
+        function toggleUrl() {
+            var url = $('#loginUrl').val();
+            var value1 = 'http://k11-sol.hkbnes.net/enterprise_cgi/main_menu.cgi?vlan=vip';
+            var value2 = window.location.href + 'wifi_session.html';
+            var newValue = (url == value1 ? value2 : value1);
+            $('#loginUrl').val(newValue);
+        }
+
+        function GetSessionId() {
+            $.ajax({
+                url: $('#loginUrl').val(),
+                type: 'GET',
+                success: function (data) {
+                    $('#temp').html(data);
+                    var session = $('#temp').find('#soln_session').val();
+                    $('#session').html(session);
+                    $('input[name="soln_session"]').val(session);
+                },
+                error: function (jqXHR, textStatus, errorThrown) {
+                    console.log(jqXHR);
+                    var msg = '';
+                    msg += 'status: ' + jqXHR.status + ' (' + jqXHR.statusText + ')<br>';
+                    msg += 'response text: ' + jqXHR.responseText + '<br>';
+                    $('#sessionResult').html(msg);
+                }
+            });
+        }
+
+        function PostToWifiPage() {
+
+            var postData = $('#formData').serializeArray();
+            //console.log(postData);
+
+            var session = $('#session').text();
+            if (!session) {
+                alert('session id is not initialized');
+                return;
+            }
+
+            $.ajax({
+                url: $('#loginUrl').val(),
+                type: 'POST',
+                data: postData,
+                success: function (data) {
+                    $('#result').html(data);
+                    console.log(data);
+                },
+                error: function (jqXHR, textStatus, errorThrown) {
+                    console.log(jqXHR);
+                    var msg = '';
+                    msg += 'status: ' + jqXHR.status + ' (' + jqXHR.statusText + ')<br>';
+                    msg += 'response text: ' + jqXHR.responseText + '<br>';
+                    $('#result').html(msg);
+                }
+            });
+        }
+
+    </script>
+</body>
+</html>
