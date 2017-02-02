@@ -9,9 +9,9 @@
 <body>
 
     Url: <input id="loginUrl" type="text" value="http://localhost/wifi/wifi_session.html" />
-    <button onclick="toggleUrl()">Toggle</button><hr>
+    <button onclick="ToggleUrl(); return false;">Toggle</button><hr>
     Session Id: <span id="session"></span><button onclick="GetSessionId(); return false;">Get Session Id</button>
-    <span id='sessionResult'></span>
+    <span id="sessionResult"></span>
     <span id="temp" style="display: none"></span>
     <br>
     Test Case:
@@ -80,7 +80,7 @@
             });
         });
 
-        function toggleUrl() {
+        function ToggleUrl() {
             var url = $('#loginUrl').val();
             var value1 = 'http://k11-sol.hkbnes.net/enterprise_cgi/main_menu.cgi?vlan=vip';
             var value2 = window.location.href + 'wifi_session.html';
